@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header" id="top">
@@ -154,8 +154,92 @@
       <div class="container cta-inner reveal">
         <p class="eyebrow">06 — VOTRE PROJET</p>
         <h2>Votre projet pourrait être le prochain.</h2>
-        <p>Vous avez une idée de site, d'application web ou d'application mobile ? Parlons-en simplement et voyons comment la transformer en solution concrète.</p>
-        <a class="button button-white" href="mailto:contact@ognandjilabs.com?subject=Demande%20de%20projet">Démarrer un projet <span>↗</span></a>
+        <p>Vous avez une idée de site, d'application web ou d'application mobile ? Décrivez votre besoin, je reviens vers vous rapidement.</p>
+
+        <!--
+          NOTE POUR L'ÉTAPE SUIVANTE :
+          Ce formulaire est validé côté navigateur puis envoyé via un lien mailto (solution
+          temporaire de test). À remplacer par un insert Supabase (table ex. "demandes_projet")
+          + notification email réelle (Edge Function ou n8n) — voir handleProjectFormSubmit()
+          dans js/main.js pour le point de branchement.
+        -->
+        <form class="project-form" id="projectForm" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nom">Nom complet <span class="required">*</span></label>
+              <input type="text" id="nom" name="nom" autocomplete="name" required>
+              <span class="field-error" id="err-nom" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="email">Email <span class="required">*</span></label>
+              <input type="email" id="email" name="email" autocomplete="email" required>
+              <span class="field-error" id="err-email" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="entreprise">Entreprise</label>
+              <input type="text" id="entreprise" name="entreprise" autocomplete="organization">
+            </div>
+            <div class="form-group">
+              <label for="telephone">Téléphone</label>
+              <input type="tel" id="telephone" name="telephone" autocomplete="tel" placeholder="+241 XX XX XX XX">
+              <span class="field-error" id="err-telephone" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="type_projet">Type de projet <span class="required">*</span></label>
+              <select id="type_projet" name="type_projet" required>
+                <option value="" disabled selected>Sélectionnez...</option>
+                <option value="site-web">Site web</option>
+                <option value="application-web">Application web</option>
+                <option value="application-mobile">Application mobile</option>
+                <option value="autre">Autre</option>
+              </select>
+              <span class="field-error" id="err-type_projet" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="budget">Budget indicatif</label>
+              <select id="budget" name="budget">
+                <option value="">Non défini</option>
+                <option value="Moins de 500 000 FCFA">Moins de 500 000 FCFA</option>
+                <option value="500 000 – 1 500 000 FCFA">500 000 – 1 500 000 FCFA</option>
+                <option value="1 500 000 – 5 000 000 FCFA">1 500 000 – 5 000 000 FCFA</option>
+                <option value="Plus de 5 000 000 FCFA">Plus de 5 000 000 FCFA</option>
+                <option value="À discuter">À discuter</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label for="delai">Délai souhaité</label>
+              <select id="delai" name="delai">
+                <option value="Flexible">Flexible</option>
+                <option value="Dès que possible">Dès que possible</option>
+                <option value="Sous 1 mois">Sous 1 mois</option>
+                <option value="1 à 3 mois">1 à 3 mois</option>
+                <option value="Plus de 3 mois">Plus de 3 mois</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label for="description">Description du besoin <span class="required">*</span></label>
+            <textarea id="description" name="description" rows="5" required minlength="20" placeholder="Décrivez votre projet, vos objectifs, vos utilisateurs..."></textarea>
+            <span class="field-error" id="err-description" role="alert"></span>
+          </div>
+
+          <div class="form-footer">
+            <p class="form-note">* Champs obligatoires — l'envoi ouvre temporairement votre client email avec la demande pré-remplie.</p>
+            <button type="submit" class="button button-white">Envoyer ma demande <span>↗</span></button>
+          </div>
+
+          <p class="form-success" id="formSuccess" role="status" hidden>Merci ! Votre client email va s'ouvrir avec votre demande pré-remplie. Vous pouvez aussi me contacter directement ci-dessous.</p>
+        </form>
       </div>
     </section>
 
@@ -165,7 +249,7 @@
         <h2>Une idée ? Parlons-en.</h2>
       </div>
       <div class="contact-row reveal">
-        <a href="mailto:contact@ognandjilabs.com">contact@ognandjilabs.com <span>↗</span></a>
+        <a href="mailto:contact@ognandjilabs.com">ognandjijuniorarafat@gmail.com <span>↗</span></a>
         <a href="#projet">Demander un projet <span>↗</span></a>
       </div>
     </section>
@@ -186,6 +270,6 @@
     </div>
   </footer>
 
-  <script src="js/main.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
