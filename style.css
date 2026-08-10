@@ -1014,3 +1014,13 @@ body.menu-open {
   max-width: 640px;
   color: #555
 }
+
+.whatsapp-link {
+  color: #ccc;
+  text-decoration: underline;
+  text-underline-offset: 2px
+}
+
+.whatsapp-link:hover {
+  color: #fff
+}
