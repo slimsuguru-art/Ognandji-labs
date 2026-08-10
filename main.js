@@ -1,3 +1,11 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+// --- Connexion Supabase (projet Ognandji Labs) -----------------------
+const supabase = createClient(
+  'https://ntvkdoacmiigohhkimcs.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50dmtkb2FjbWlpZ29oaGtpbWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNjcxNTYsImV4cCI6MjEwMTk0MzE1Nn0.2OAczo_y16AkFdwt9izR75OO-Qx6gfmazYTXbkqybMY'
+);
+
 const menuToggle = document.querySelector('.menu-toggle');
 const navLinks = document.querySelector('.nav-links');
 
@@ -95,16 +103,35 @@ if (projectForm) {
     return `mailto:contact@ognandjilabs.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
-  // TODO (étape suivante) : remplacer le contenu de cette fonction par un
-  // appel Supabase, ex. :
-  //   const { error } = await supabase.from('demandes_projet').insert([data]);
-  // puis déclencher la notification email (Edge Function Supabase ou n8n)
-  // au lieu d'ouvrir un mailto.
-  const handleProjectFormSubmit = (data) => {
-    window.location.href = buildMailtoLink(data);
+  // TODO (prochaine étape) : notification email automatique à chaque
+  // nouvelle ligne insérée, via une Edge Function Supabase déclenchée par
+  // un Database Webhook sur la table demandes_projet (service email : Resend
+  // à confirmer). Pour l'instant, seul l'enregistrement en base est actif.
+  const handleProjectFormSubmit = async (data) => {
+    const { error } = await supabase.from('demandes_projet').insert([{
+      nom: data.nom,
+      email: data.email,
+      entreprise: data.entreprise || null,
+      telephone: data.telephone || null,
+      type_projet: data.type_projet,
+      budget: data.budget || null,
+      delai: data.delai || null,
+      description: data.description
+    }]);
+
+    if (error) {
+      console.error('Erreur Supabase :', error);
+      // Repli : si l'enregistrement échoue (ex. hors ligne), on ouvre
+      // quand même le client email pour ne pas perdre la demande.
+      window.location.href = buildMailtoLink(data);
+      return { ok: false };
+    }
+    return { ok: true };
   };
 
-  projectForm.addEventListener('submit', (e) => {
+  const submitButton = projectForm.querySelector('button[type="submit"]');
+
+  projectForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const isValid = Object.keys(fields).every(name => validateField(name));
@@ -117,10 +144,26 @@ if (projectForm) {
     const formData = new FormData(projectForm);
     const data = Object.fromEntries(formData.entries());
 
-    handleProjectFormSubmit(data);
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Envoi en cours...';
+    }
+
+    const result = await handleProjectFormSubmit(data);
+
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = 'Envoyer ma demande <span>↗</span>';
+    }
 
     const successEl = document.getElementById('formSuccess');
-    if (successEl) successEl.hidden = false;
-    projectForm.reset();
+    if (successEl) {
+      successEl.textContent = result.ok
+        ? 'Merci ! Votre demande a bien été envoyée. Je reviens vers vous rapidement.'
+        : "Un souci est survenu lors de l'enregistrement — votre client email s'est ouvert avec votre demande pré-remplie, pensez à l'envoyer.";
+      successEl.hidden = false;
+    }
+
+    if (result.ok) projectForm.reset();
   });
 }
